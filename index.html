@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Global Compartido</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+            transition: background-color 0.3s;
+        }
+
+        #colorButton {
+            padding: 20px 40px;
+            font-size: 24px;
+            cursor: pointer;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            transition: transform 0.1s, background-color 0.3s;
+        }
+
+        #colorButton:hover {
+            transform: scale(1.05);
+        }
+
+        #colorButton:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+    <button id="colorButton">Cargando...</button>
+
+    <script>
+        // Función para generar colores aleatorios
+        function generarColor() {
+            return '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+        }
+
+        // Obtener y actualizar colores desde la API
+        async function actualizarColor(nuevoColor = null) {
+            const boton = document.getElementById('colorButton');
+            
+            if(nuevoColor) {
+                // Guardar nuevo color
+                await fetch('/api/color', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ color: nuevoColor })
+                });
+            }
+
+            // Obtener color actual
+            const respuesta = await fetch('/api/color');
+            const { color } = await respuesta.json();
+            
+            boton.style.backgroundColor = color;
+            boton.textContent = `Color Global: ${color}`;
+            document.body.style.backgroundColor = generarColor();
+        }
+
+        // Eventos
+        window.onload = () => actualizarColor();
+        document.getElementById('colorButton').onclick = () => actualizarColor(generarColor());
+    </script>
+</body>
+</html>
